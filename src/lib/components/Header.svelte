@@ -8,7 +8,7 @@
 </script>
 
 <footer>
-	EMs ståldesign
+	Ståldesign
 	{#each links as link}
 		<a href={link.route}>{link.display}</a>
 	{/each}

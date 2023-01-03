@@ -40,12 +40,15 @@
 			<DataProperty props={{ id: 'A', val: json_res.area?.toExponential(2), unit: 'mm^2' }} />
 
 			{#if crsKind == 'HEB'}
-				<DataProperty
-					props={{ id: 'w_{el,y}', val: json_res.w_el_y?.toExponential(2), unit: 'mm^3' }}
-				/>
-				<DataProperty
-					props={{ id: 'w_{pl,y}', val: json_res.w_pl_y?.toExponential(2), unit: 'mm^3' }}
-				/>
+			<DataProperty props={{ id: 'A_{v,pl,y}', val: json_res.A_v_y?.toExponential(2), unit: 'mm^2' }} />
+			
+			<DataProperty
+			props={{ id: 'w_{el,y}', val: json_res.w_el_y?.toExponential(2), unit: 'mm^3' }}
+			/>
+			<DataProperty
+			props={{ id: 'w_{pl,y}', val: json_res.w_pl_y?.toExponential(2), unit: 'mm^3' }}
+			/>
+			<DataProperty props={{ id: 'A_{v,pl,z}', val: json_res.A_v_z?.toExponential(2), unit: 'mm^2' }} />
 				<DataProperty
 					props={{ id: 'w_{el,z}', val: json_res.w_el_z?.toExponential(2), unit: 'mm^3' }}
 				/>
@@ -56,6 +59,8 @@
 				<DataProperty props={{ id: 'I_z', val: json_res.I_z?.toExponential(2), unit: 'mm^4' }} />
 			{/if}
 			{#if crsKind == 'CHS'}
+			<DataProperty props={{ id: 'A_{v,pl}', val: json_res.A_v_y?.toExponential(2), unit: 'mm^2' }} />
+
 				<DataProperty
 					props={{ id: 'w_{el}', val: json_res.w_el_y?.toExponential(2), unit: 'mm^3' }}
 				/>

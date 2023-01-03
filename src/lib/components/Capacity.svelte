@@ -16,6 +16,8 @@
 
 	let d: {
 		N_pl: number | undefined;
+		V_pl_y: number | undefined,
+		V_pl_z: number | undefined,
 		M_el_y: number | undefined;
 		M_pl_y: number | undefined;
 		M_el_z: number | undefined;
@@ -43,6 +45,8 @@
 		});
 		d = {
 			N_pl: icludeSafetyFactor ? json_res.N_pl_d : json_res.N_pl_k,
+			V_pl_y: icludeSafetyFactor ? json_res.V_pl_y_d : json_res.V_pl_y_k,
+			V_pl_z: icludeSafetyFactor ? json_res.V_pl_z_d : json_res.V_pl_z_k,
 			M_el_y: icludeSafetyFactor ? json_res.M_el_y_d : json_res.M_el_y_k,
 			M_pl_y: icludeSafetyFactor ? json_res.M_pl_y_d : json_res.M_pl_y_k,
 			M_el_z: icludeSafetyFactor ? json_res.M_el_z_d : json_res.M_el_z_k,
@@ -74,8 +78,11 @@
 			<DataProperty props={{ id: 'f_u', val: material_res.f_u?.toFixed(0), unit: 'MPa' }} />
 			<DataProperty props={{ id: 'f_{u,d}', val: material_res.f_u_d?.toFixed(0), unit: 'MPa' }} />
 			<DataProperty
-				props={{ id: '\\gamma _{M0}', val: material_res.gamma_d?.toFixed(2), unit: '' }}
+				props={{ id: '\\gamma _{M0}', val: material_res.gamma_m0?.toFixed(2), unit: '' }}
 			/>
+			<DataProperty
+			props={{ id: '\\gamma _{M1}', val: material_res.gamma_m1?.toFixed(2), unit: '' }}
+		/>
 		</div>
 	{/if}
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -108,6 +115,20 @@
 				}}
 			/>
 			{#if crsKind == 'HEB'}
+			<DataProperty
+			props={{
+				id: 'V_{pl,y}',
+				val: d.V_pl_y ? (d.V_pl_y / 1000).toFixed(0) : '0',
+				unit: 'kN'
+			}}
+		/>
+		<DataProperty
+		props={{
+			id: 'V_{pl,z}',
+			val: d.V_pl_z ? (d.V_pl_z / 1000).toFixed(0) : '0',
+			unit: 'kN'
+		}}
+	/>
 				<DataProperty
 					props={{
 						id: 'M_{el,y}',
@@ -138,6 +159,13 @@
 				/>
 			{/if}
 			{#if crsKind == 'CHS'}
+			<DataProperty
+			props={{
+				id: 'V_{pl}',
+				val: d.V_pl_y ? (d.V_pl_y / 1000).toFixed(0) : '0',
+				unit: 'kN m'
+			}}
+		/>
 				<DataProperty
 					props={{
 						id: 'M_{el}',

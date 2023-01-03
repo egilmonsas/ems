@@ -27,7 +27,8 @@
 	};
 	get_names();
 	let crsOptions: Array<string> = names.HEB;
-
+	let curveY='A';
+	let curveZ='A';
 	$: switch (crsKind) {
 		case 'HEB':
 			crsOptions = names.HEB;
@@ -49,6 +50,9 @@
 	let forget1: any;
 	let forget2: any;
 
+
+	let buckleCurveKinds = ['A0', 'A', 'B','C','D'];
+
 	function handle() {
 		get_crs_data(crsKind, crsType);
 		get_cmb_capacity(crsKind, crsType, material, icludeSafetyFactor);
@@ -69,11 +73,15 @@
 		let data = (await invoke(`get_buckle_curve`, {
 			crstype: crsKind,
 			name: crsType,
-			material: material
+			material: material,
+			curveY,
+			curveZ,
+			limitstate: icludeSafetyFactor? "D" : "K"
 		})) as BuckleResponse[];
 		return data;
 	}
 	let data = get_buckledata();
+
 </script>
 
 <Header links={[{ display: 'Test', route: '/test' }]} />
@@ -81,8 +89,10 @@
 	<sidebar>
 		Material: <Selector bind:selected={material} options={names.MAT} onChange={handle} />
 		Materialfaktor? <Switch bind:active={icludeSafetyFactor} onChange={handle} />
-		Tverrsnittstype: <Selector bind:selected={crsKind} options={crsKinds} onChange={forget} />
+		Tverrsnittstype: <Selector bind:selected={crsKind} options={crsKinds} onChange={handle} />
 		Tverrsnittsvariant: <Selector bind:selected={crsType} options={crsOptions} onChange={handle} />
+		Knekkurve,y: <Selector bind:selected={curveY} options={buckleCurveKinds} onChange={handle} />
+		Knekkurve,z: <Selector bind:selected={curveZ} options={buckleCurveKinds} onChange={handle} />
 		<CrsSelect {crsKind} bind:execute={get_crs_data} bind:forget={forget1} />
 		<Capacity {crsKind} bind:execute={get_cmb_capacity} bind:forget={forget2} />
 	</sidebar>

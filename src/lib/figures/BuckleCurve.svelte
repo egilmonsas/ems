@@ -18,6 +18,8 @@
 	const buffer = 25;
 	const margin = 0;
 	const NumScale = 1 / 1000;
+	const xTickCount = 50;
+	const yTickCount = 50;
 
 	$: x = data.map((d) => d[xDimension] * NumScale);
 	$: y = data.map((d) => d[yDimension] * NumScale);
@@ -34,7 +36,7 @@
 
 	$: xScale = scaleLinear().domain([xExtent[0], xExtent[1]]).range([xMin, xMax]).nice();
 	$: yScale = scaleLinear().domain([yExtent[0], yExtent[1]]).range([yMax, yMin]).nice();
-
+	const colors=["rgba(255, 255, 255, 0.2)","rgba(255, 255, 255, 0.05)"];
 	const pathLine_y = line()
 		.x((d) => xScale(d[xDimension] * NumScale))
 		.y((d) => yScale(d['N_rd_y'] * NumScale))
@@ -64,29 +66,23 @@
 	</g>
 
 	<!-- Draw xAxis -->
-	{#each xScale.ticks() as tick}
+	{#each xScale.ticks(xTickCount) as tick,i}
 		<g transform={`translate(${xScale(tick)} ${yMax})`}>
-			<line y1={-tickLength} y2={tickLength} stroke="black" />
-			<text y={15 + tickLength} text-anchor="middle">{tick}</text>
+			<line y1={0} y2={-vHeight} stroke={colors[i%2]} />
+			{#if i%2===0}
+				<line y1={-tickLength} y2={tickLength} stroke="black" />
+				<text y={15 + tickLength} text-anchor="middle">{tick.toFixed(1)}</text>
+			{/if}
 		</g>
-	{/each}
-	<!-- Draw yAxis -->
-	{#each yScale.ticks() as tick}
+		{/each}
+		<!-- Draw yAxis -->
+		{#each yScale.ticks(yTickCount) as tick,i}
 		<g transform={`translate(${xMin} ${yScale(tick)})`}>
-			<line x1={-tickLength} x2={tickLength} stroke="black" />
-			<text x="-20" dominant-baseline="middle" text-anchor="end">{tick.toFixed(0)}</text>
-		</g>
-	{/each}
-	<!-- Draw vertical grid -->
-	{#each xScale.ticks() as tick}
-		<g transform={`translate(${xScale(tick)} )`}>
-			<line y1={yMax} y2={yMin} stroke="black" />
-		</g>
-	{/each}
-	<!-- Draw horisontal grid -->
-	{#each yScale.ticks() as tick}
-		<g transform={`translate(0 ${yScale(tick)} )`}>
-			<line x1={xMin} x2={xMax} stroke="black" />
+			<line x1={0} x2={vWidth} stroke={colors[i%2]} />
+			{#if i%2===0}
+				<line x1={-tickLength} x2={tickLength} stroke="black" />
+				<text x="-20" dominant-baseline="middle" text-anchor="end">{tick.toFixed(0)}</text>
+			{/if}
 		</g>
 	{/each}
 	<!-- Plot data -->

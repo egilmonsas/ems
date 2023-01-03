@@ -5,5 +5,6 @@ export interface MaterialResponse {
 	f_y_d?: number;
 	f_u?: number;
 	f_u_d?: number;
-	gamma_d?: number;
+	gamma_m0?: number;
+	gamma_m1?: number;
 }
