@@ -59,7 +59,9 @@
 				"height": 600,
 				"resizable": true,
 				"title": "EMs",
-				"width": 800
+				"width": 800,
+				"minWidth": 600,
+				"maximized":true
 			}
 		]
 	}
