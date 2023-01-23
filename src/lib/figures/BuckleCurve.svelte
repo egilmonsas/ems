@@ -1,136 +1,145 @@
-<script lang="ts">
-	// @ts-nocheck
 
-	import { scaleLinear } from 'd3-scale';
-	import { min, max } from 'd3-array';
+
+<script lang="ts" >
+	// @ts-nocheck
 	import type { BuckleResponse } from '$lib/types/buckleResponse.ts';
-	import { line, curveBasis } from 'd3-shape';
+	import Plotly from 'plotly.js-dist';
+	import { onMount } from 'svelte';
 
 	export let data: BuckleResponse[];
-	export let xDimension: string;
-	export let yDimension: string;
+    export let parentWidth, parentHeight; 
+	export let crsType = '';
+	
+	const fig_color = "rgba(255,255,255,0)"
+	const axis_y_color = "#a0cbe8"
+	const axis_z_color = "#4e79a7"
+	const section_cap_color = "#f28e2b"
+	const grid_color="rgb(50,50,50)"
+	const tickwidth=2
+	const ticklen=10
+	onMount(() => {
+		var N_pl = {
+			x: data.map((d) => d['L_k']/1000),
+			y: data.map((d) => d['N_pl']/1000),
+			mode: 'lines',
+			name:"N_pl",
+			line: {
+				color:section_cap_color,
+			},
+			};
+		var ymax = data[0]['N_pl']
+		var N_rd_y = {
+			x: data.map((d) => d['L_k']/1000),
+			y: data.map((d) => d['N_rd_y']/1000),
+			mode: 'lines',
+			line: {
+				shape: 'spline',
+				color:axis_y_color,
+			},
+			name:"N_b_rd_y",
+		};
+		var N_rd_z = {
+			x: data.map((d) => d['L_k']/1000),
+			y: data.map((d) => d['N_rd_z']/1000),
+			mode: 'lines',
+			line: {
+				shape: 'spline',
+				color:axis_z_color,
+			},
+			name:"N_b_rd_z",				
+		};
+		var N_eu_y = {
+			x: data.map((d) => d['L_k']/1000),
+			y: data.map((d) => d['N_eu_y']/1000),
+			mode: 'lines',
+			line: {
+				dash:'dash',
+				shape: 'spline',				
+				color:axis_y_color,
+			},
+			name:"N_eu_y",
+		};
+		var N_eu_z = {
+			x: data.map((d) => d['L_k']/1000),
+			y: data.map((d) => d['N_eu_z']/1000),
+			mode: 'lines',
+			line: {
+				dash:'dash',
+				shape: 'spline',
+				color:axis_z_color,
+			},
+			name:"N_eu_z",
+		};
+		var dataToPlot = [ N_pl,N_rd_y,N_rd_z,N_eu_y,N_eu_z ];
 
-	const height = 950;
-	const width = 1700;
-	const axisSpace = 75;
-	const tickLength = 10;
-	const legendWidth = 150;
-	const buffer = 25;
-	const margin = 0;
-	const NumScale = 1 / 1000;
-	const xTickCount = 50;
-	const yTickCount = 50;
 
-	$: x = data.map((d) => d[xDimension] * NumScale);
-	$: y = data.map((d) => d[yDimension] * NumScale);
+		var layout = {
+			width: parentWidth,
+			height: parentHeight,
+			title: crsType,
+			xaxis: {
+				title: 'Knekklengde [m]',
+				range:[0,20],
+				gridcolor:grid_color,
+				nticks:20,
+				ticks:"inside",
+				linecolor: 'black',
+				tickcolor:"black",
+				mirror:true,
+				ticklen:ticklen,
+				tickwidth:tickwidth,
+				minor:{
+					ticks:'inside',
+					nticks:2,
+					ticklen:ticklen*0.75,
+					tickwidth:tickwidth
+				}
+			},
+			yaxis: {
+				title: 'Kapasitet [kN]',
+				range:[0,1.1*ymax/1000],
+				gridcolor:grid_color,
+				nticks:20,
+				tickcolor:"black",
+				ticks:"inside",
+				linecolor: 'black',
+				mirror:true,
+				ticklen:ticklen,
+				tickwidth:tickwidth,
+				minor:{
+					ticks:'inside',
+					nticks:2,
+					ticklen:ticklen*0.75,
+					tickwidth:tickwidth
+				}
+			},
+			paper_bgcolor:fig_color,
+			plot_bgcolor:fig_color,
+			font:{
+				size:16,
+			},
+			modebar:{
+				orientation:"v",
+				bgcolor:"rgba(100,100,100,0.0)",
+				color:"rgb(0, 122, 204)",
+				remove: ["editInChartStudio","editinchartstudio","autoscale"]
+			}
 
-	$: xExtent = [0, max(x)];
-	$: yExtent = [0, max(y)];
+		};
+		let plotDiv = document.getElementById('plotDiv');	
+		
+		var config = {
+			showSendToCloud:true,
+			displaylogo: false,
+			editable: true,
+			displayModeBar: true,
+		}
 
-	$: xMin = axisSpace + buffer;
-	$: xMax = width - buffer - legendWidth;
-	$: vWidth = xMax - xMin;
-	$: yMax = height - axisSpace - buffer;
-	$: yMin = buffer + margin;
-	$: vHeight = yMax - yMin;
-
-	$: xScale = scaleLinear().domain([xExtent[0], xExtent[1]]).range([xMin, xMax]).nice();
-	$: yScale = scaleLinear().domain([yExtent[0], yExtent[1]]).range([yMax, yMin]).nice();
-	const colors=["rgba(255, 255, 255, 0.2)","rgba(255, 255, 255, 0.05)"];
-	const pathLine_y = line()
-		.x((d) => xScale(d[xDimension] * NumScale))
-		.y((d) => yScale(d['N_rd_y'] * NumScale))
-		.curve(curveBasis);
-	const pathLine_z = line()
-		.x((d) => xScale(d[xDimension] * NumScale))
-		.y((d) => yScale(d['N_rd_z'] * NumScale))
-		.curve(curveBasis);
-	const eulerCurve_y = line()
-		.x((d) => xScale(d[xDimension] * NumScale))
-		.y((d) => yScale(d['N_eu_y'] * NumScale))
-		.curve(curveBasis);
-	const eulerCurve_z = line()
-		.x((d) => xScale(d[xDimension] * NumScale))
-		.y((d) => yScale(d['N_eu_z'] * NumScale))
-		.curve(curveBasis);
-	const sectionLine = line()
-		.x((d) => xScale(d[xDimension] * NumScale))
-		.y((d) => yScale(d['N_pl'] * NumScale))
-		.curve(curveBasis);
+		// @ts-ignore
+		let Plot = Plotly.newPlot(plotDiv, dataToPlot, layout, config); 
+  });
+            
 </script>
-
-<svg {height} {width}>
-	<!-- Plot background -->
-	<g transform={`translate(${xMin} ${yMin})`}>
-		<rect height={vHeight} width={vWidth} stroke="black" />
-	</g>
-
-	<!-- Draw xAxis -->
-	{#each xScale.ticks(xTickCount) as tick,i}
-		<g transform={`translate(${xScale(tick)} ${yMax})`}>
-			<line y1={0} y2={-vHeight} stroke={colors[i%2]} />
-			{#if i%2===0}
-				<line y1={-tickLength} y2={tickLength} stroke="black" />
-				<text y={15 + tickLength} text-anchor="middle">{tick.toFixed(1)}</text>
-			{/if}
-		</g>
-		{/each}
-		<!-- Draw yAxis -->
-		{#each yScale.ticks(yTickCount) as tick,i}
-		<g transform={`translate(${xMin} ${yScale(tick)})`}>
-			<line x1={0} x2={vWidth} stroke={colors[i%2]} />
-			{#if i%2===0}
-				<line x1={-tickLength} x2={tickLength} stroke="black" />
-				<text x="-20" dominant-baseline="middle" text-anchor="end">{tick.toFixed(0)}</text>
-			{/if}
-		</g>
-	{/each}
-	<!-- Plot data -->
-	<g>
-		<path class={'buckle-curve axis-y'} d={pathLine_y(data)} />
-		<path class={'buckle-curve axis-z'} d={pathLine_z(data)} />
-		<path class={'euler-curve axis-y'} d={eulerCurve_y(data)} />
-		<path class={'euler-curve axis-z'} d={eulerCurve_z(data)} />
-		<path class={'section-curve'} d={sectionLine(data)} />
-	</g>
-</svg>
-
-<style>
-	svg {
-		background: transparent;
-		margin: 0;
-		padding: 0;
-		width: 100%;
-		height: 100%;
-		flex-grow: 1;
-	}
-	text {
-		fill: rgba(240, 230, 220);
-		stroke: transparent;
-	}
-	rect {
-		fill: rgba(255, 255, 255, 0.1);
-		stroke-width: 2;
-	}
-
-	path {
-		stroke-width: 3;
-		fill: none;
-		stroke-linecap: round;
-	}
-	.buckle-curve {
-		stroke-width: 3;
-	}
-	.euler-curve {
-		stroke-dasharray: 10;
-	}
-	.section-curve {
-		stroke: #f28e2b;
-	}
-	.axis-y {
-		stroke: #a0cbe8;
-	}
-	.axis-z {
-		stroke: #4e79a7;
-	}
-</style>
+<div id="plotly">
+  <div id="plotDiv"></div>
+</div>

@@ -2,9 +2,14 @@
 	export let options: Array<string> = [''];
 	export let selected: string;
 	export let onChange: any;
+	export let hover:boolean=false;
+
+
+
 </script>
 
-<select bind:value={selected} on:change={onChange}>
+<!-- svelte-ignore a11y-mouse-events-have-key-events -->
+<select bind:value={selected} on:change={onChange} on:mouseenter={() => {hover = true}} on:mouseleave={() => {hover = false}}>
 	{#each options as item}
 		<option>{item}</option>
 	{/each}

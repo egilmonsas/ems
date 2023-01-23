@@ -7,9 +7,12 @@
 	}
 
 	export let props: DataProp = {};
-</script>
 
-<div id="row">
+	$: show = props.val !== 'NaN' && props.val !== undefined;
+</script>
+{#if show}
+	
+<div id="row">	
 	<div id="name">
 		<Katex>{props.id}</Katex>
 	</div>
@@ -20,7 +23,7 @@
 		<Katex>{props.unit}</Katex>
 	</div>
 </div>
-
+{/if}
 <style>
 	#row {
 		display: flex;

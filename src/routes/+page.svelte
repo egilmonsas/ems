@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { invoke } from '@tauri-apps/api/tauri';
+	import table6_2 from '$lib/assets/infographics/table6_2.png';
+	import CapacitySelect from '$lib/components/CapacitySelect.svelte';
 	import CrsSelect from '$lib/components/CrsSelect.svelte';
-	import Capacity from '$lib/components/Capacity.svelte';
-	import Header from '$lib/components/Header.svelte';
 	import Footer from '$lib/components/Footer.svelte';
+	import Header from '$lib/components/Header.svelte';
 	import Selector from '$lib/components/Selector.svelte';
 	import Switch from '$lib/components/Switch.svelte';
 	import BuckleCurve from '$lib/figures/BuckleCurve.svelte';
 	import type { BuckleResponse } from '$lib/types/buckleResponse';
-
+	import { invoke } from '@tauri-apps/api/tauri';
 	let icludeSafetyFactor: boolean;
 	let material = 'S355';
 	let crsKind = 'HEB';
@@ -47,8 +47,6 @@
 	}
 	let get_crs_data: any;
 	let get_cmb_capacity: any;
-	let forget1: any;
-	let forget2: any;
 
 
 	let buckleCurveKinds = ['A0', 'A', 'B','C','D'];
@@ -58,10 +56,7 @@
 		get_cmb_capacity(crsKind, crsType, material, icludeSafetyFactor);
 		data = get_buckledata();
 	}
-	function forget() {
-		forget1();
-		forget2();
-	}
+
 
 	async function get_names() {
 		names.CHS = await invoke('get_section_names', { crstype: 'CHS' });
@@ -81,25 +76,49 @@
 		return data;
 	}
 	let data = get_buckledata();
-
+    let viewPortWidth, viewPortHeight
+	let consideringBuckleCurve:boolean;
 </script>
 
 <Header links={[{ display: 'Test', route: '/test' }]} />
 <main>
 	<sidebar>
-		Material: <Selector bind:selected={material} options={names.MAT} onChange={handle} />
-		Materialfaktor? <Switch bind:active={icludeSafetyFactor} onChange={handle} />
-		Tverrsnittstype: <Selector bind:selected={crsKind} options={crsKinds} onChange={handle} />
+		Material: <Selector bind:selected={material} options={names.MAT} onChange={handle}/>
+		Materialfaktor? <Switch bind:active={icludeSafetyFactor} onChange={handle}/>
+		Tverrsnittstype: <Selector bind:selected={crsKind} options={crsKinds} onChange={handle}/>
 		Tverrsnittsvariant: <Selector bind:selected={crsType} options={crsOptions} onChange={handle} />
-		Knekkurve,y: <Selector bind:selected={curveY} options={buckleCurveKinds} onChange={handle} />
-		Knekkurve,z: <Selector bind:selected={curveZ} options={buckleCurveKinds} onChange={handle} />
-		<CrsSelect {crsKind} bind:execute={get_crs_data} bind:forget={forget1} />
-		<Capacity {crsKind} bind:execute={get_cmb_capacity} bind:forget={forget2} />
+		Knekkurve,y: <Selector bind:selected={curveY} options={buckleCurveKinds} onChange={handle} bind:hover={consideringBuckleCurve}/>
+		Knekkurve,z: <Selector bind:selected={curveZ} options={buckleCurveKinds} onChange={handle} bind:hover={consideringBuckleCurve}/>
+		<CrsSelect bind:execute={get_crs_data} {crsKind}/>
+		<CapacitySelect  bind:execute={get_cmb_capacity} {icludeSafetyFactor} />
 	</sidebar>
 	{#await data}
-		<p>Loading...</p>
+	<p>Loading...</p>
 	{:then data}
-		<BuckleCurve {data} xDimension={'L_k'} yDimension={'N_pl'} />
+	<div class = "container" bind:clientWidth={viewPortWidth} bind:clientHeight={viewPortHeight}>
+		<!-- <BuckleCurve {data} parentWidth={viewPortWidth} parentHeight={viewPortHeight}/> -->
+		<img src={table6_2} alt="Eurokode 3-1, tabell 6.3" hidden={!consideringBuckleCurve}/> 
+		<BuckleCurve {data} {crsType} parentWidth={viewPortWidth} parentHeight={viewPortHeight}/>
+		
+	</div>
 	{/await}
 </main>
 <Footer />
+
+<style>
+	.container{
+		margin:0;
+		padding:0;
+		width:100%;
+		flex-grow: 1;
+		display:flex;
+		flex-direction: column;
+		background: rgba(255, 255, 255, 0);
+	}
+
+	img{
+		position: absolute;
+		height: 100%;
+		z-index: 2
+	}
+</style>

@@ -1,76 +1,51 @@
 <script lang="ts">
-	import { invoke } from '@tauri-apps/api/tauri';
-	import DataProperty from '../units/DataProperty.svelte';
+	import CHS from '$lib/assets/crossSections/CHS.png';
+	import HEB from '$lib/assets/crossSections/HEB.png';
+
 	import type { CrossSectionResponse } from '$lib/types/crossSectionResponse';
-	import { afterUpdate } from 'svelte';
-
-	export let crsKind: string;
-
-	let want_to_show: boolean = true;
-	let have_data_to_show: boolean = false;
-	let json_res: CrossSectionResponse = {};
-
-	async function toggle_cross_section_data_view() {
-		want_to_show = !want_to_show;
+	import { invoke } from '@tauri-apps/api/tauri';
+	import ResponseTable from './ResponseTable.svelte';
+	interface DataProp {
+		id?: string;
+		val?: string;
+		unit?: string;
 	}
+	let crossSectionDataToShow:	Array<DataProp> = [] ;	
+	let image_to_show: any;
+	export let crsKind:string;
+	$: switch (crsKind){
+			case ("HEB"):
+				image_to_show=HEB
+				break;
+			case ("CHS"):
+				image_to_show=CHS
+				break;
+	};
 
 	export async function execute(crsKind: string, crsType: string) {
-		json_res = await invoke('get_area', { crstype: crsKind, name: crsType });
-		have_data_to_show = true;
+		let CrossSectionResponse:CrossSectionResponse = await invoke('get_area', { crstype: crsKind, name: crsType });
+		crossSectionDataToShow=[
+			{id: 'b', val: CrossSectionResponse.width?CrossSectionResponse.width.toFixed(0):"NaN", unit: 'mm'},
+			{id: 'h', val: CrossSectionResponse.height?CrossSectionResponse.height.toFixed(0):"NaN", unit: 'mm'},
+			{id: 'd', val: CrossSectionResponse.diameter?CrossSectionResponse.diameter.toFixed(1):"NaN", unit: 'mm'},
+			{id: 't', val: CrossSectionResponse.thickness_wall?CrossSectionResponse.thickness_wall.toFixed(1):"NaN", unit: 'mm'},
+			{id: 's', val: CrossSectionResponse.thickness_web?CrossSectionResponse.thickness_web.toFixed(1):"NaN", unit: 'mm'},
+			{id: 't', val: CrossSectionResponse.thickness_flange?CrossSectionResponse.thickness_flange.toFixed(1):"NaN", unit: 'mm'},
+			{id: 'r', val: CrossSectionResponse.radius1?CrossSectionResponse.radius1.toFixed():"NaN", unit: 'mm'},
+			{id: 'A', val: CrossSectionResponse.area?CrossSectionResponse.area.toExponential(2):"NaN", unit: 'mm^2'},
+			{id: 'A_v', val: CrossSectionResponse.A_v?CrossSectionResponse.A_v.toExponential(2):"NaN", unit: 'mm^2'},
+			{id: 'A_{v,y}', val: CrossSectionResponse.A_v_y?CrossSectionResponse.A_v_y.toExponential(2):"NaN", unit: 'mm^2'},
+			{id: 'A_{v,z}', val: CrossSectionResponse.A_v_z?CrossSectionResponse.A_v_z.toExponential(2):"NaN", unit: 'mm^2'},
+
+		]
 	}
 
-	export async function forget() {
-		json_res = {};
-		have_data_to_show = false;
-	}
 </script>
 
 <div id="cross-section-properties" class="overflow">
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
-	<h1 on:click={toggle_cross_section_data_view}>Egenskaper</h1>
-	{#if want_to_show && have_data_to_show}
-		<div>
-			{#if crsKind == 'HEB'}
-				<DataProperty props={{ id: 'b', val: json_res.width?.toString(), unit: 'mm' }} />
-				<DataProperty props={{ id: 'h', val: json_res.height?.toString(), unit: 'mm' }} />
-			{/if}
-			{#if crsKind == 'CHS'}
-				<DataProperty props={{ id: 'd', val: json_res.height?.toString(), unit: 'mm' }} />
-			{/if}
-			<DataProperty props={{ id: 'A', val: json_res.area?.toExponential(2), unit: 'mm^2' }} />
-
-			{#if crsKind == 'HEB'}
-			<DataProperty props={{ id: 'A_{v,pl,y}', val: json_res.A_v_y?.toExponential(2), unit: 'mm^2' }} />
-			
-			<DataProperty
-			props={{ id: 'w_{el,y}', val: json_res.w_el_y?.toExponential(2), unit: 'mm^3' }}
-			/>
-			<DataProperty
-			props={{ id: 'w_{pl,y}', val: json_res.w_pl_y?.toExponential(2), unit: 'mm^3' }}
-			/>
-			<DataProperty props={{ id: 'A_{v,pl,z}', val: json_res.A_v_z?.toExponential(2), unit: 'mm^2' }} />
-				<DataProperty
-					props={{ id: 'w_{el,z}', val: json_res.w_el_z?.toExponential(2), unit: 'mm^3' }}
-				/>
-				<DataProperty
-					props={{ id: 'w_{pl,z}', val: json_res.w_pl_z?.toExponential(2), unit: 'mm^3' }}
-				/>
-				<DataProperty props={{ id: 'I_y', val: json_res.I_y?.toExponential(2), unit: 'mm^4' }} />
-				<DataProperty props={{ id: 'I_z', val: json_res.I_z?.toExponential(2), unit: 'mm^4' }} />
-			{/if}
-			{#if crsKind == 'CHS'}
-			<DataProperty props={{ id: 'A_{v,pl}', val: json_res.A_v_y?.toExponential(2), unit: 'mm^2' }} />
-
-				<DataProperty
-					props={{ id: 'w_{el}', val: json_res.w_el_y?.toExponential(2), unit: 'mm^3' }}
-				/>
-				<DataProperty
-					props={{ id: 'w_{pl}', val: json_res.w_pl_y?.toExponential(2), unit: 'mm^3' }}
-				/>
-				<DataProperty props={{ id: 'I', val: json_res.I_y?.toExponential(2), unit: 'mm^3' }} />
-			{/if}
-		</div>
-	{/if}
+	<img src={image_to_show} alt={crsKind}/>
+	<ResponseTable title={"Tverrsnitt"} dataToShow={crossSectionDataToShow}/>
 </div>
 
 <style>
@@ -86,5 +61,9 @@
 		display: inline-block;
 		overflow: hidden;
 		vertical-align: bottom;
+	}
+	img {
+		margin-top: 0.5em;
+		width: 100%;
 	}
 </style>
