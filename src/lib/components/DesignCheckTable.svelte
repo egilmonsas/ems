@@ -5,7 +5,6 @@
 	import { invoke } from '@tauri-apps/api/tauri';
 
 	let DCToShow: Array<DataProperty> = [];
-	let res = '';
 	export async function execute(
 		crsKind: string,
 		crsType: string,
@@ -71,7 +70,6 @@
 				tooltip: 'Samvirke, bøyeknekking om svak akse og vipping'
 			}
 		];
-		test = '';
 	}
 </script>
 

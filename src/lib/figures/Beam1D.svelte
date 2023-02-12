@@ -40,7 +40,14 @@
 	}));
 
 	function compute_self_weight_moment_at_x(x_norm: number, beam: Arrow, self_weight: number) {
-		return 0.5 * x_norm * Math.pow(beam_len(beam), 2) * self_weight * (1 - x_norm);
+		return (
+			0.5 *
+			x_norm *
+			Math.pow(beam_len(beam), 2) *
+			self_weight *
+			(1 - x_norm) *
+			Math.cos(beam_ang(beam))
+		);
 	}
 	function compute_self_weight_shear_at_x(x_norm: number, beam: Arrow, self_weight: number) {
 		return beam_len(beam) * self_weight * (0.5 - x_norm) * Math.cos(beam_ang(beam));
