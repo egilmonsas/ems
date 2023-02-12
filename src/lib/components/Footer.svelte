@@ -1,20 +1,12 @@
 <script>
-	import { VERSION } from '../../stores/appver.js';
-	import { AUTHOR } from '../../stores/author.js';
-
-	// import { time, elapsed } from '../../stores/time.js';
-
-	// const formatter = new Intl.DateTimeFormat('en-NO', {
-	// 	hour12: false,
-	// 	hour: 'numeric',
-	// 	minute: '2-digit',
-	// 	second: '2-digit'
-	// });
+	// @ts-nocheck
 </script>
 
 <footer>
-	<div>v{$VERSION}</div>
-	<div class="author">{$AUTHOR}</div>
+	<!-- svelte-ignore missing-declaration -->
+	<div>v{__APP_VERSION__}</div>
+	<!-- svelte-ignore missing-declaration -->
+	<div class="author">{__AUTHOR__}</div>
 
 	<!-- <div>{formatter.format($time)}</div> -->
 </footer>
@@ -23,6 +15,7 @@
 	footer {
 		bottom: 0;
 		left: 0;
+		position: absolute;
 		width: 100%;
 		padding-top: 0.15em;
 		padding-bottom: 0.15em;

@@ -3,22 +3,31 @@
 	export let selected: string;
 	export let onChange: any;
 	export let hover:boolean=false;
-
+	export let label:string;
 
 
 </script>
 
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
-<select bind:value={selected} on:change={onChange} on:mouseenter={() => {hover = true}} on:mouseleave={() => {hover = false}}>
-	{#each options as item}
+<div>
+	{label}
+	<select bind:value={selected} on:change={onChange} on:mouseenter={() => {hover = true}} on:mouseleave={() => {hover = false}}>
+		{#each options as item}
 		<option>{item}</option>
-	{/each}
-</select>
+		{/each}
+	</select>
+</div>
 
 <style>
+	div {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		margin-bottom: 0.5em;
+
+	}
 	select {
 		width: 100%;
-
 		font-family: inherit;
 		font-size: 0.9em;
 		cursor: inherit;

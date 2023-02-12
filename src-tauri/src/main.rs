@@ -3,10 +3,11 @@
     windows_subsystem = "windows"
 )]
 use emsdesign::crs::{CrossSectionLib, Variant};
-use emsdesign::erc::NSEN_1993::BuckleCurve;
+use emsdesign::erc::NSEN_1993::{BuckleCurve, LTBCurve};
+use emsdesign::load::loadcase::LoadCase;
 use emsdesign::mat::steel::{Class, Steel};
 use emsdesign::mat::Material;
-use emsdesign::mmb::columnbeam::ColumnBeam;
+use emsdesign::mmb::columnbeam::{ColumnBeam, DesignChecks};
 use emsdesign::{Axis, LimitStateType};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -19,7 +20,8 @@ fn main() {
             get_capacity,
             get_steel_variants,
             get_material_properties,
-            get_buckle_curve
+            get_buckle_curve,
+            perform_design_check
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -41,7 +43,59 @@ fn get_capacity(crstype: &str, name: &str, material: &str) -> Result<Value, Stri
     let cmb = ColumnBeam::new(crs, mat);
     Ok(cmb.json())
 }
+#[allow(clippy::too_many_arguments)]
+#[tauri::command]
+fn perform_design_check(
+    crstype: &str,
+    name: &str,
+    material: &str,
+    n: f64,
+    my: f64,
+    mz: f64,
+    c_my: f64,
+    c_mz: f64,
+    mu_cr: f64,
+    length: f64,
+    beta_ky: f64,
+    beta_kz: f64,
+    beta_kltb: f64,
+    buckle_curve_y: &str,
+    buckle_curve_z: &str,
+    ltb_curve: &str,
+) -> Result<DesignChecks, String> {
+    let preset = Variant::get(crstype).ok_or_else(|| "Could not get preset".to_owned())?;
+    let crs = CrossSectionLib::get(&preset, name);
+    let matvariant = Class::get(material).ok_or_else(|| "Could not get material".to_owned())?;
+    let mat = Steel::from(&matvariant);
+    let cmb = ColumnBeam::new(crs, mat);
 
+    let design_load = LoadCase {
+        N: n,
+        Mx: 0.0,
+        My: my,
+        Mz: mz,
+    };
+    let buckle_curve_y = BuckleCurve::get(buckle_curve_y)
+        .ok_or_else(|| "Could not get buckle curve y".to_owned())?;
+    let buckle_curve_z = BuckleCurve::get(buckle_curve_z)
+        .ok_or_else(|| "Could not get buckle curve z".to_owned())?;
+    let buckle_curve_ltb =
+        LTBCurve::get(ltb_curve).ok_or_else(|| "Could not get buckle curve ltb".to_owned())?;
+    let design_checks = cmb.dc(
+        &design_load,
+        c_my,
+        c_mz,
+        mu_cr,
+        length * beta_ky,
+        length * beta_kz,
+        length * beta_kltb,
+        &buckle_curve_y,
+        &buckle_curve_z,
+        &buckle_curve_ltb,
+    );
+
+    Ok(design_checks)
+}
 #[tauri::command]
 fn get_section_names(crstype: &str) -> Result<Value, String> {
     let preset = Variant::get(crstype).ok_or_else(|| "Could not get preset".to_owned())?;
@@ -58,6 +112,7 @@ fn get_material_properties(material: &str) -> Result<Value, String> {
     Ok(mat.json())
 }
 #[derive(Serialize, Deserialize)]
+#[allow(non_snake_case)]
 struct Capacity {
     L_k: f64,
     N_eu_y: f64,
@@ -102,13 +157,13 @@ fn get_buckle_curve(
         #[allow(non_snake_case)]
         let L_k = l;
         #[allow(non_snake_case)]
-        let N_eu_y = cmb.euler_load(l, Axis::Y);
+        let N_eu_y = cmb.euler_load(l, &Axis::Y);
         #[allow(non_snake_case)]
-        let N_eu_z = cmb.euler_load(l, Axis::Z);
+        let N_eu_z = cmb.euler_load(l, &Axis::Z);
         #[allow(non_snake_case)]
-        let N_rd_y = cmb.buckle_cap(l, Axis::Y, &buckle_curve_y, &limitstate);
+        let N_rd_y = cmb.buckle_cap(l, &Axis::Y, &buckle_curve_y, &limitstate);
         #[allow(non_snake_case)]
-        let N_rd_z = cmb.buckle_cap(l, Axis::Z, &buckle_curve_z, &limitstate);
+        let N_rd_z = cmb.buckle_cap(l, &Axis::Z, &buckle_curve_z, &limitstate);
         out.push(Capacity {
             L_k,
             N_pl,

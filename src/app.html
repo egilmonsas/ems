@@ -48,16 +48,27 @@
 		margin-left: 0.5em;
 	}
 
+	sidebarContent {
+		direction: ltr;
+		width: 100%;
+
+		padding: 0;
+		display: inline-block;
+	}
+
 	sidebar {
 		width: 200px;
 		min-width: 200px;
-		height: 100%;
 		background: rgb(40, 40, 40);
 		top: 0;
+		left: 0;
 		margin: 0;
 		padding: 1em;
-		display: flex;
-		flex-direction: column;
+		overflow-y: overlay;
+		overflow-x: hidden;
+		direction: rtl;
+		position: relative;
+
 	}
 
 	sidebar h1 {
@@ -67,6 +78,26 @@
 		border-bottom: 1px solid rgb(100, 100, 100);
 		font-size: 1.1em;
 		cursor: pointer;
+	}
+
+	/* width */
+	::-webkit-scrollbar {
+		width: 10px;
+	}
+
+	/* Track */
+	::-webkit-scrollbar-track {
+		background: #f1f1f1;
+	}
+
+	/* Handle */
+	::-webkit-scrollbar-thumb {
+		background: #888;
+	}
+
+	/* Handle on hover */
+	::-webkit-scrollbar-thumb:hover {
+		background: #555;
 	}
 
 	a {

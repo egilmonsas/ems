@@ -10,42 +10,92 @@
 		val?: string;
 		unit?: string;
 	}
-	let crossSectionDataToShow:	Array<DataProp> = [] ;	
+	let crossSectionDataToShow: Array<DataProp> = [];
 	let image_to_show: any;
-	export let crsKind:string;
-	$: switch (crsKind){
-			case ("HEB"):
-				image_to_show=HEB
-				break;
-			case ("CHS"):
-				image_to_show=CHS
-				break;
-	};
-
-	export async function execute(crsKind: string, crsType: string) {
-		let CrossSectionResponse:CrossSectionResponse = await invoke('get_area', { crstype: crsKind, name: crsType });
-		crossSectionDataToShow=[
-			{id: 'b', val: CrossSectionResponse.width?CrossSectionResponse.width.toFixed(0):"NaN", unit: 'mm'},
-			{id: 'h', val: CrossSectionResponse.height?CrossSectionResponse.height.toFixed(0):"NaN", unit: 'mm'},
-			{id: 'd', val: CrossSectionResponse.diameter?CrossSectionResponse.diameter.toFixed(1):"NaN", unit: 'mm'},
-			{id: 't', val: CrossSectionResponse.thickness_wall?CrossSectionResponse.thickness_wall.toFixed(1):"NaN", unit: 'mm'},
-			{id: 's', val: CrossSectionResponse.thickness_web?CrossSectionResponse.thickness_web.toFixed(1):"NaN", unit: 'mm'},
-			{id: 't', val: CrossSectionResponse.thickness_flange?CrossSectionResponse.thickness_flange.toFixed(1):"NaN", unit: 'mm'},
-			{id: 'r', val: CrossSectionResponse.radius1?CrossSectionResponse.radius1.toFixed():"NaN", unit: 'mm'},
-			{id: 'A', val: CrossSectionResponse.area?CrossSectionResponse.area.toExponential(2):"NaN", unit: 'mm^2'},
-			{id: 'A_v', val: CrossSectionResponse.A_v?CrossSectionResponse.A_v.toExponential(2):"NaN", unit: 'mm^2'},
-			{id: 'A_{v,y}', val: CrossSectionResponse.A_v_y?CrossSectionResponse.A_v_y.toExponential(2):"NaN", unit: 'mm^2'},
-			{id: 'A_{v,z}', val: CrossSectionResponse.A_v_z?CrossSectionResponse.A_v_z.toExponential(2):"NaN", unit: 'mm^2'},
-
-		]
+	export let crsKind: string;
+	$: switch (crsKind) {
+		case 'HEB':
+			image_to_show = HEB;
+			break;
+		case 'CHS':
+			image_to_show = CHS;
+			break;
 	}
-
+	export async function execute(crsKind: string, crsType: string) {
+		let CrossSectionResponse: CrossSectionResponse = await invoke('get_area', {
+			crstype: crsKind,
+			name: crsType
+		});
+		crossSectionDataToShow = [
+			{
+				id: 'b',
+				val: CrossSectionResponse.width ? CrossSectionResponse.width.toFixed(0) : 'NaN',
+				unit: 'mm'
+			},
+			{
+				id: 'h',
+				val: CrossSectionResponse.height ? CrossSectionResponse.height.toFixed(0) : 'NaN',
+				unit: 'mm'
+			},
+			{
+				id: 'd',
+				val: CrossSectionResponse.diameter ? CrossSectionResponse.diameter.toFixed(1) : 'NaN',
+				unit: 'mm'
+			},
+			{
+				id: 't',
+				val: CrossSectionResponse.thickness_wall
+					? CrossSectionResponse.thickness_wall.toFixed(1)
+					: 'NaN',
+				unit: 'mm'
+			},
+			{
+				id: 's',
+				val: CrossSectionResponse.thickness_web
+					? CrossSectionResponse.thickness_web.toFixed(1)
+					: 'NaN',
+				unit: 'mm'
+			},
+			{
+				id: 't',
+				val: CrossSectionResponse.thickness_flange
+					? CrossSectionResponse.thickness_flange.toFixed(1)
+					: 'NaN',
+				unit: 'mm'
+			},
+			{
+				id: 'r',
+				val: CrossSectionResponse.radius1 ? CrossSectionResponse.radius1.toFixed() : 'NaN',
+				unit: 'mm'
+			},
+			{
+				id: 'A',
+				val: CrossSectionResponse.area ? CrossSectionResponse.area.toExponential(2) : 'NaN',
+				unit: 'mm^2'
+			},
+			{
+				id: 'A_v',
+				val: CrossSectionResponse.A_v ? CrossSectionResponse.A_v.toExponential(2) : 'NaN',
+				unit: 'mm^2'
+			},
+			{
+				id: 'A_{v,y}',
+				val: CrossSectionResponse.A_v_y ? CrossSectionResponse.A_v_y.toExponential(2) : 'NaN',
+				unit: 'mm^2'
+			},
+			{
+				id: 'A_{v,z}',
+				val: CrossSectionResponse.A_v_z ? CrossSectionResponse.A_v_z.toExponential(2) : 'NaN',
+				unit: 'mm^2'
+			}
+		];
+	}
 </script>
 
 <div id="cross-section-properties" class="overflow">
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
-	<img src={image_to_show} alt={crsKind}/>
-	<ResponseTable title={"Tverrsnitt"} dataToShow={crossSectionDataToShow}/>
+	<img src={image_to_show} alt={crsKind} />
+	<ResponseTable title={'Tverrsnitt'} dataToShow={crossSectionDataToShow} />
 </div>
 
 <style>
@@ -56,7 +106,11 @@
 		--select-focus: blue;
 		--select-arrow: var(--select-border);
 	}
-
+	div {
+		width: 100%;
+		display: flex;
+		flex-grow: 1;
+	}
 	.overflow {
 		display: inline-block;
 		overflow: hidden;
