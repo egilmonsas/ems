@@ -16,7 +16,8 @@
 	import type { BuckleResponse } from '$lib/types/buckleResponse';
 	import { BaseDirectory, createDir } from '@tauri-apps/api/fs';
 	import { invoke } from '@tauri-apps/api/tauri';
-
+	let M0 = 0;
+	let F0 = 0;
 	let icludeSafetyFactor: boolean = true;
 	let material = 'S355';
 	let crsKind = 'HEB';
@@ -321,7 +322,14 @@
 		{#await data then data}
 			{#await res then res}
 				{#if 1 === currentTab}
-					<Beam1D parentWidth={viewPortWidth} parentHeight={viewPortHeight} {beam} {res} />
+					<Beam1D
+						{F0}
+						{M0}
+						parentWidth={viewPortWidth}
+						parentHeight={viewPortHeight}
+						{beam}
+						{res}
+					/>
 				{/if}
 			{/await}
 			{#if 2 === currentTab}

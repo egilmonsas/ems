@@ -11,14 +11,17 @@
 
 	export let parentWidth: number, parentHeight: number, res: CapacityResponse;
 	// Config
-	const x_norms = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
+	const x_norms = [
+		0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85,
+		0.9, 0.95, 1.0
+	];
 	const margin = 0.15;
 
 	// User input
 	export let beam: Arrow;
 	let self_weight = res.self_weight_kN_pr_meter ? res.self_weight_kN_pr_meter : 1;
-	let F0 = 0;
-	let M0 = 0;
+	export let F0;
+	export let M0;
 
 	// Opplager
 	$: ang = beam_ang(beam);
@@ -37,8 +40,8 @@
 	}));
 	$: axial = x_norms.map((d) => ({
 		x: d,
-		y: compute_self_weight_axial_at_x(d, beam, self_weight) + F0,
-		ang: beam_ang(beam) + (1 / 2) * Math.PI
+		y: -compute_self_weight_axial_at_x(d, beam, self_weight) - F0,
+		ang: beam_ang(beam) - (1 / 2) * Math.PI
 	}));
 
 	function compute_moment_at_x(x_norm: number, beam: Arrow, self_weight: number, M0: number) {
@@ -140,10 +143,18 @@
 	/>
 
 	<!-- Draw loads -->
-	<BeamLoadCurve {Zoom} label={'q'} load={lineload} {xScale} {yScale} {beam} color={'pink'} />
-	<BeamLoadCurve {Zoom} label={'N'} load={axial} {xScale} {yScale} {beam} color={'red'} />
-	<BeamLoadCurve {Zoom} label={'V'} load={shear} {xScale} {yScale} {beam} color={'green'} />
-	<BeamLoadCurve {Zoom} label={'M'} load={moment} {xScale} {yScale} {beam} color={'blue'} />
+	<BeamLoadCurve
+		unit={'kN/m'}
+		label={'q'}
+		load={lineload}
+		{xScale}
+		{yScale}
+		{beam}
+		color={'pink'}
+	/>
+	<BeamLoadCurve unit={'kN'} label={'N'} load={axial} {xScale} {yScale} {beam} color={'red'} />
+	<BeamLoadCurve unit={'kN'} label={'V'} load={shear} {xScale} {yScale} {beam} color={'green'} />
+	<BeamLoadCurve unit={'kNm'} label={'M'} load={moment} {xScale} {yScale} {beam} color={'blue'} />
 
 	<!-- Draw force arrow -->
 	<BeamForceArrow

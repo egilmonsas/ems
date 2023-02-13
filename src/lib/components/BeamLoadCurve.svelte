@@ -1,6 +1,6 @@
 <script lang="ts">
 	// @ts-nocheck
-	export let xScale, yScale, Zoom;
+	export let xScale, yScale, unit;
 	export let load;
 	export let beam;
 	export let color;
@@ -96,7 +96,7 @@
 <path
 	d={momentLine(points_along_curve)}
 	stroke={color}
-	stroke-width="5"
+	stroke-width="8"
 	on:mouseenter={mouseEnter}
 	on:mouseleave={mouseExit}
 />
@@ -106,7 +106,7 @@
 	<text
 		x={xScale(get_node_along_curve(beam, extrema[1], extrema[2]).x)}
 		y={yScale(get_node_along_curve(beam, extrema[1], extrema[2]).y) - 20}
-		>{label}_max={extrema[1].y.toFixed(2)} kNm</text
+		>{extrema[1].x}×L: {label}_max={extrema[1].y.toFixed(2)} {unit}</text
 	>
 
 	<circle
@@ -122,13 +122,13 @@
 			r="6"
 			stroke={color}
 			fill={color}
-			cx={xScale(get_node_along_curve(beam, extrema[0], extrema[2].y).x)}
+			cx={xScale(get_node_along_curve(beam, extrema[0], extrema[2]).x)}
 			cy={yScale(get_node_along_curve(beam, extrema[0], extrema[2]).y)}
 		/>
 		<text
 			x={xScale(get_node_along_curve(beam, extrema[0], extrema[2]).x)}
 			y={yScale(get_node_along_curve(beam, extrema[0], extrema[2]).y) - 20}
-			>{label}_min={extrema[0].y.toFixed(2)} kN</text
+			>{extrema[0].x}×L: {label}_min={extrema[0].y.toFixed(2)} {unit}</text
 		>
 	{/if}
 {/if}

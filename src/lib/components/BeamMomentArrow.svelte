@@ -10,8 +10,8 @@
 	}
 	const theta_norms = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
 
-	$: angStart = ang - Math.PI * 0.5;
-	$: angStop = ang + Math.PI * 0.5;
+	$: angStart = ang - Math.PI * 0.25;
+	$: angStop = ang + Math.PI;
 	$: dAng = angStop - angStart;
 	function draw_curve(p0: Vec2, stepLength: number, stepAngle: number): Vec2 {
 		let x = p0.x + Math.cos(stepAngle) * stepLength;
@@ -34,17 +34,28 @@
 
 <path d={pathLine(points)} stroke="blue" stroke-width="3" fill="none" />
 <path
-	d={pathLine([points[0], step_along(points[0], -side_length / 4, ang + Math.PI / 4)])}
+	d={pathLine([
+		points[0],
+		step_along(points[0], -side_length / 4, angStart + Math.PI * (1 / 2 - 1 / 4))
+	])}
 	stroke="blue"
 	stroke-width="3"
 />
 <path
-	d={pathLine([points[0], step_along(points[0], -side_length / 4, ang - Math.PI / 4)])}
+	d={pathLine([
+		points[0],
+		step_along(points[0], -side_length / 4, angStart + Math.PI * (1 / 2 + 1 / 4))
+	])}
 	stroke="blue"
 	stroke-width="3"
 />
 
-<foreignObject width="50" height="23" x={xScale(points[0].x)} y={yScale(points[0].y) + 25}>
+<foreignObject
+	width="50"
+	height="23"
+	x={xScale(step_along(points[0], -side_length / 3, angStart + Math.PI * (1 / 2 - 1 / 4)).x)}
+	y={yScale(step_along(points[0], -side_length / 3, angStart + Math.PI * (1 / 2 - 1 / 4)).y)}
+>
 	<input id="input" class="input-real" type="number" bind:value={M} />
 </foreignObject>
 
