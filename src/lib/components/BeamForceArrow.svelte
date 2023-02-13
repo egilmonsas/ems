@@ -1,8 +1,8 @@
 <script lang="ts">
 	// @ts-nocheck
 	import { curveNatural, line } from 'd3-shape';
-	export let xScale, yScale, point, ang, F;
-	const side_length = 1;
+	export let xScale, yScale, point, ang, F, Zoom;
+	const side_length = 1 * Zoom;
 	interface Vec2 {
 		x: number;
 		y: number;
@@ -46,10 +46,20 @@
 	stroke="red"
 	stroke-width="3"
 />
-
-<text
-	font-size="20"
+<foreignObject
+	width="50"
+	height="23"
 	x={xScale(step_along(point, -1.5 * side_length, ang).x) + 10}
-	y={yScale(step_along(point, -1.5 * side_length, ang).y)}
-	stroke="red">F_0 = {F} kN</text
+	y={yScale(step_along(point, -1.5 * side_length, ang).y) - 15}
 >
+	<input id="input" class="input-real" type="number" bind:value={F} />
+</foreignObject>
+
+<style>
+	input {
+		background: rgba(0, 0, 0, 0);
+		border: 0;
+		color: red;
+		font-size: 1.5em;
+	}
+</style>

@@ -534,7 +534,7 @@ checksum = "4ef6b89e5b37196644d8796de5268852ff179b44e96276cf4290264843743bb7"
 [[package]]
 name = "emsdesign"
 version = "0.1.0"
-source = "git+https://github.com/egilmonsas/emsdesign?branch=dev#a4a830eecb31de9972d32107df66597dd5a66871"
+source = "git+https://github.com/egilmonsas/emsdesign?branch=dev#69a74bca822135b7a3d4bfc11f8377defaf88190"
 dependencies = [
  "phf 0.11.1",
  "ron",

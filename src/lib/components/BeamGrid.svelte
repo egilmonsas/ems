@@ -87,21 +87,3 @@
 	y2={yScale(y2)}
 	stroke="black"
 />
-<line
-	r="3"
-	x1={xScale(x1)}
-	y1={yScale(y2)}
-	x2={xScale(x1 + 1)}
-	y2={yScale(y2)}
-	stroke="red"
-	stroke-width="5"
-/>
-<line
-	r="3"
-	x1={xScale(x1)}
-	y1={yScale(y2 - (1 * (y2 - y1)) / (x2 - x1))}
-	x2={xScale(x1 + 1)}
-	y2={yScale(y2)}
-	stroke="red"
-	stroke-width="5"
-/>

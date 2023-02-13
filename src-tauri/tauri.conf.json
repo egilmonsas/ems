@@ -12,7 +12,18 @@
 	},
 	"tauri": {
 		"allowlist": {
-			"all": false
+			"all": false,
+			"fs": {
+				"all": true,
+				"scope": [
+					"$APP/*",
+					"$DESKTOP/*",
+					"$DOCUMENT/*"
+				]
+			},
+			"path": {
+				"all": true
+			}
 		},
 		"bundle": {
 			"active": true,
@@ -61,7 +72,7 @@
 				"title": "EMs",
 				"width": 800,
 				"minWidth": 600,
-				"maximized":true
+				"maximized": true
 			}
 		]
 	}

@@ -1,6 +1,6 @@
 <script lang="ts">
 	// @ts-nocheck
-	export let xScale, yScale;
+	export let xScale, yScale, Zoom;
 	export let load;
 	export let beam;
 	export let color;
@@ -104,8 +104,8 @@
 <!-- Annotate, show max and min only on hover -->
 {#if show}
 	<text
-		x={xScale(get_node_along_curve(beam, extrema[1], extrema[1].y).x)}
-		y={yScale(get_node_along_curve(beam, extrema[1], extrema[1].y).y) - 20}
+		x={xScale(get_node_along_curve(beam, extrema[1], extrema[2]).x)}
+		y={yScale(get_node_along_curve(beam, extrema[1], extrema[2]).y) - 20}
 		>{label}_max={extrema[1].y.toFixed(2)} kNm</text
 	>
 
@@ -113,8 +113,8 @@
 		r="6"
 		stroke={color}
 		fill={color}
-		cx={xScale(get_node_along_curve(beam, extrema[1], extrema[1].y).x)}
-		cy={yScale(get_node_along_curve(beam, extrema[1], extrema[1].y).y)}
+		cx={xScale(get_node_along_curve(beam, extrema[1], extrema[2]).x)}
+		cy={yScale(get_node_along_curve(beam, extrema[1], extrema[2]).y)}
 	/>
 	<!-- Refrain from annotating both if value is the same along length -->
 	{#if extrema[1].y != extrema[0].y}
@@ -122,12 +122,12 @@
 			r="6"
 			stroke={color}
 			fill={color}
-			cx={xScale(get_node_along_curve(beam, extrema[0], extrema[1].y).x)}
-			cy={yScale(get_node_along_curve(beam, extrema[0], extrema[1].y).y)}
+			cx={xScale(get_node_along_curve(beam, extrema[0], extrema[2].y).x)}
+			cy={yScale(get_node_along_curve(beam, extrema[0], extrema[2]).y)}
 		/>
 		<text
-			x={xScale(get_node_along_curve(beam, extrema[0], extrema[1].y).x)}
-			y={yScale(get_node_along_curve(beam, extrema[0], extrema[1].y).y) - 20}
+			x={xScale(get_node_along_curve(beam, extrema[0], extrema[2]).x)}
+			y={yScale(get_node_along_curve(beam, extrema[0], extrema[2]).y) - 20}
 			>{label}_min={extrema[0].y.toFixed(2)} kN</text
 		>
 	{/if}
@@ -136,6 +136,7 @@
 <style>
 	path {
 		fill: none;
+		opacity: 0.6;
 	}
 	text {
 		font-size: 20;

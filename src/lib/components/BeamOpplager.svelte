@@ -1,8 +1,8 @@
 <script lang="ts">
 	// @ts-nocheck
 	import { line } from 'd3-shape';
-	export let xScale, yScale, point, ang, slide;
-	const side_length = 1;
+	export let xScale, yScale, point, ang, slide, Zoom;
+	const side_length = 1 * Zoom;
 	interface Vec2 {
 		x: number;
 		y: number;

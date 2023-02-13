@@ -1,6 +1,7 @@
 <script lang="ts">
 	import table6_2 from '$lib/assets/infographics/table6_2.png';
 	import table6_4 from '$lib/assets/infographics/table6_4.png';
+	import tableB_3 from '$lib/assets/infographics/tableB_3.png';
 
 	import CapacitySelect from '$lib/components/CapacitySelect.svelte';
 	import Beam1D from '$lib/figures/Beam1D.svelte';
@@ -13,6 +14,7 @@
 	import Header from '$lib/components/Tabs.svelte';
 	import BuckleCurve from '$lib/figures/BuckleCurve.svelte';
 	import type { BuckleResponse } from '$lib/types/buckleResponse';
+	import { BaseDirectory, createDir } from '@tauri-apps/api/fs';
 	import { invoke } from '@tauri-apps/api/tauri';
 
 	let icludeSafetyFactor: boolean = true;
@@ -60,22 +62,29 @@
 	let buckleCurveKinds = ['A0', 'A', 'B', 'C', 'D'];
 	let LTBCurveKinds = ['A', 'B', 'C', 'D'];
 
+	let cMy: number = 0.95,
+		cMz: number = 0.95,
+		muCr: number = 1.13;
 	function handle() {
 		get_crs_data(crsKind, crsType);
 		perform_design_check(
 			crsKind,
 			crsType,
 			material,
-			N_kN,
-			My_kNm,
-			Mz_kNm,
+			N_kN ? N_kN : 0,
+			My_kNm ? My_kNm : 0,
+			Mz_kNm ? Mz_kNm : 0,
 			length,
 			beta_ky,
 			beta_kz,
 			beta_kltb,
 			curveY,
 			curveZ,
-			curveLTB
+			curveLTB,
+			icludeSafetyFactor ? 'D' : 'K',
+			cMy,
+			cMz,
+			muCr
 		);
 		res = get_cmb_capacity(crsKind, crsType, material, icludeSafetyFactor);
 		data = get_buckledata();
@@ -102,6 +111,7 @@
 	let viewPortWidth, viewPortHeight;
 	let consideringBuckleCurve: boolean;
 	let consideringLTBCurve: boolean;
+	let consideringCm: Boolean;
 	let tabItems = [
 		{ label: 'Stavmodell', value: 1 },
 		{ label: 'Knekkurve', value: 2 },
@@ -112,10 +122,10 @@
 	let x1: number = 0,
 		y1: number = 0,
 		x2: number = 10,
-		y2: number = 5,
-		N_kN: Number = 1000,
-		My_kNm: Number = 0,
-		Mz_kNm: Number = 0;
+		y2: number = 0,
+		N_kN: Number,
+		My_kNm: Number,
+		Mz_kNm: Number;
 	$: beam = { start_node: { x: x1, y: y1 }, end_node: { x: x2, y: y2 } };
 	let beta_ky = 1.0;
 	let beta_kz = 1.0;
@@ -140,7 +150,28 @@
 	export function beam_len(beam: Arrow) {
 		return Math.sqrt(Math.pow(beam_dx(beam), 2) + Math.pow(beam_dy(beam), 2));
 	}
+	async function increment() {
+		await invoke('increment_count', {});
+		count = get_count();
+	}
+	async function get_count() {
+		let res = await invoke('get_count', {}).then();
+		return res;
+	}
+	$: count = get_count();
 	$: length = beam_len(beam);
+
+	const createDataFolder = async () => {
+		try {
+			await createDir('NGI_STÅL', {
+				dir: BaseDirectory.Document,
+				recursive: true
+			});
+		} catch (e) {
+			console.error(e);
+		}
+	};
+	createDataFolder();
 </script>
 
 <main>
@@ -148,17 +179,59 @@
 		<sidebarContent>
 			<p>Dim. Last</p>
 			<div class="row">
-				<input type="number" on:change={handle} bind:value={N_kN} step="1" />
-				<input type="number" on:change={handle} bind:value={My_kNm} step="0.1" />
-				<input type="number" on:change={handle} bind:value={Mz_kNm} step="0.1" />
+				<input type="number" on:change={handle} bind:value={N_kN} step="1" placeholder="N,ed" />
+				<input
+					type="number"
+					on:change={handle}
+					bind:value={My_kNm}
+					step="0.1"
+					placeholder="My,ed"
+				/>
+				<input
+					type="number"
+					on:change={handle}
+					bind:value={Mz_kNm}
+					step="0.1"
+					placeholder="Mz,ed"
+				/>
 			</div>
 			<p>Geometri</p>
 			<div class="row">
-				<input type="number" on:change={handle} bind:value={x1} step="0.1" />
-				<input type="number" on:change={handle} bind:value={x2} step="0.1" />
-				<input type="number" on:change={handle} bind:value={y1} step="0.1" />
-				<input type="number" on:change={handle} bind:value={y2} step="0.1" />
+				<input type="number" on:change={handle} bind:value={x1} step="0.1" placeholder="x1" />
+				<input type="number" on:change={handle} bind:value={x2} step="0.1" placeholder="y1" />
+				<input type="number" on:change={handle} bind:value={y1} step="0.1" placeholder="x2" />
+				<input type="number" on:change={handle} bind:value={y2} step="0.1" placeholder="y2" />
 				{length.toFixed(1)}
+			</div>
+			<p>Div.</p>
+			<div class="row">
+				<input
+					type="number"
+					on:change={handle}
+					bind:value={cMy}
+					step="0.01"
+					placeholder="cMy"
+					on:mouseenter={() => {
+						consideringCm = true;
+					}}
+					on:mouseleave={() => {
+						consideringCm = false;
+					}}
+				/>
+				<input
+					type="number"
+					on:change={handle}
+					bind:value={cMz}
+					step="0.01"
+					placeholder="cMz"
+					on:mouseenter={() => {
+						consideringCm = true;
+					}}
+					on:mouseleave={() => {
+						consideringCm = false;
+					}}
+				/>
+				<input type="number" on:change={handle} bind:value={muCr} step="0.01" placeholder="muCr" />
 			</div>
 			<p>Material</p>
 			<div class="row">
@@ -205,9 +278,33 @@
 				/>
 			</div>
 			<div class="row">
-				<input type="number" on:change={handle} bind:value={beta_ky} step="0.1" max="2" min="0" />
-				<input type="number" on:change={handle} bind:value={beta_kz} step="0.1" max="2" min="0" />
-				<input type="number" on:change={handle} bind:value={beta_kltb} step="0.1" max="2" min="0" />
+				<input
+					type="number"
+					on:change={handle}
+					bind:value={beta_ky}
+					step="0.1"
+					max="2"
+					min="0"
+					placeholder="beta,y"
+				/>
+				<input
+					type="number"
+					on:change={handle}
+					bind:value={beta_kz}
+					step="0.1"
+					max="2"
+					min="0"
+					placeholder="beta,z"
+				/>
+				<input
+					type="number"
+					on:change={handle}
+					bind:value={beta_kltb}
+					step="0.1"
+					max="2"
+					min="0"
+					placeholder="beta,ltb"
+				/>
 			</div>
 			<CrsSelect bind:execute={get_crs_data} {crsKind} />
 			<CapacitySelect bind:execute={get_cmb_capacity} {icludeSafetyFactor} />
@@ -218,7 +315,9 @@
 	<div class="container" bind:clientWidth={viewPortWidth} bind:clientHeight={viewPortHeight}>
 		<Header items={tabItems} bind:activeTabValue={currentTab} />
 		<img src={table6_2} alt="Eurokode 3-1, tabell 6.3" hidden={!consideringBuckleCurve} />
-		<img src={table6_4} alt="Eurokode 3-1, tabell 6.3" hidden={!consideringLTBCurve} />
+		<img src={table6_4} alt="Eurokode 3-1, tabell 6.4" hidden={!consideringLTBCurve} />
+		<img src={tableB_3} alt="Eurokode 3-1, tabell B.3" hidden={!consideringCm} />
+
 		{#await data then data}
 			{#await res then res}
 				{#if 1 === currentTab}
@@ -228,7 +327,12 @@
 			{#if 2 === currentTab}
 				<BuckleCurve {data} {crsType} parentWidth={viewPortWidth} parentHeight={viewPortHeight} />
 			{/if}
-			{#if 3 === currentTab}asd{/if}
+			{#if 3 === currentTab}
+				<button type="button" on:click={increment}>Click Me!</button>
+				{#await count then count}
+					{count}
+				{/await}
+			{/if}
 		{/await}
 	</div>
 </main>

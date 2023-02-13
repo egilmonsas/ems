@@ -6,17 +6,19 @@
 	import BeamForceArrow from '../components/BeamForceArrow.svelte';
 	import BeamGrid from '../components/BeamGrid.svelte';
 	import BeamLoadCurve from '../components/BeamLoadCurve.svelte';
+	import BeamMomentArrow from '../components/BeamMomentArrow.svelte';
 	import BeamOpplager from '../components/BeamOpplager.svelte';
 
 	export let parentWidth: number, parentHeight: number, res: CapacityResponse;
 	// Config
 	const x_norms = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
-	const margin = 300;
+	const margin = 0.15;
 
 	// User input
 	export let beam: Arrow;
-	let self_weight = res.self_weight_kN_pr_meter;
-	let F0 = 700;
+	let self_weight = res.self_weight_kN_pr_meter ? res.self_weight_kN_pr_meter : 1;
+	let F0 = 0;
+	let M0 = 0;
 
 	// Opplager
 	$: ang = beam_ang(beam);
@@ -25,12 +27,12 @@
 	$: lineload = x_norms.map((d) => ({ x: d, y: self_weight, ang: (3 / 2) * Math.PI }));
 	$: moment = x_norms.map((d) => ({
 		x: d,
-		y: compute_self_weight_moment_at_x(d, beam, self_weight),
-		ang: beam_ang(beam) - (1 / 2) * Math.PI
+		y: compute_moment_at_x(d, beam, self_weight, M0),
+		ang: beam_ang(beam) + (1 / 2) * Math.PI
 	}));
 	$: shear = x_norms.map((d) => ({
 		x: d,
-		y: compute_self_weight_shear_at_x(d, beam, self_weight),
+		y: -compute_shear_at_x(d, beam, self_weight, M0),
 		ang: beam_ang(beam) + (1 / 2) * Math.PI
 	}));
 	$: axial = x_norms.map((d) => ({
@@ -39,39 +41,56 @@
 		ang: beam_ang(beam) + (1 / 2) * Math.PI
 	}));
 
-	function compute_self_weight_moment_at_x(x_norm: number, beam: Arrow, self_weight: number) {
-		return (
+	function compute_moment_at_x(x_norm: number, beam: Arrow, self_weight: number, M0: number) {
+		return -(
 			0.5 *
-			x_norm *
-			Math.pow(beam_len(beam), 2) *
-			self_weight *
-			(1 - x_norm) *
-			Math.cos(beam_ang(beam))
+				x_norm *
+				Math.pow(beam_len(beam), 2) *
+				self_weight *
+				(1 - x_norm) *
+				Math.cos(beam_ang(beam)) -
+			M0 * x_norm
 		);
 	}
-	function compute_self_weight_shear_at_x(x_norm: number, beam: Arrow, self_weight: number) {
-		return beam_len(beam) * self_weight * (0.5 - x_norm) * Math.cos(beam_ang(beam));
+
+	function compute_shear_at_x(x_norm: number, beam: Arrow, self_weight: number, M0: number) {
+		return (
+			beam_len(beam) * self_weight * (0.5 - x_norm) * Math.cos(beam_ang(beam)) - M0 / beam_len(beam)
+		);
 	}
 	function compute_self_weight_axial_at_x(x_norm: number, beam: Arrow, self_weight: number) {
 		return beam_len(beam) * self_weight * (1 - x_norm) * Math.sin(beam_ang(beam));
 	}
 
 	// Draw
-	$: aspect = (parentHeight - 2 * margin) / (parentWidth - 2 * margin);
-	$: xExtent = [beam.start_node.x, beam.end_node.x];
-	$: xSpan = xExtent[1] - xExtent[0];
-	$: xMidPoint = xExtent[0] + xSpan / 2;
 
+	$: xExtent = [beam.start_node.x, beam.end_node.x];
 	$: yExtent = [beam.start_node.y, beam.end_node.y];
+	$: xSpan = xExtent[1] - xExtent[0];
 	$: ySpan = yExtent[1] - yExtent[0];
+
+	$: xMidPoint = xExtent[0] + xSpan / 2;
 	$: yMidPoint = yExtent[0] + ySpan / 2;
 
+	$: xUtil = xSpan / parentWidth;
+	$: yUtil = ySpan / parentHeight;
+	$: Span = xUtil > yUtil ? xSpan : ySpan;
+
+	$: vAspect = parentHeight / parentWidth;
+
+	$: xZoom = xUtil > yUtil ? 1 : 1 / vAspect;
+	$: yZoom = xUtil > yUtil ? vAspect : 1;
+	$: Zoom = Math.sqrt(xZoom * yZoom);
+
+	$: xDomain = [xMidPoint - (xZoom * Span) / 2, xMidPoint + (xZoom * Span) / 2];
+	$: yDomain = [yMidPoint - (yZoom * Span) / 2, yMidPoint + (yZoom * Span) / 2];
+
 	$: xScale = scaleLinear()
-		.domain([xMidPoint - xSpan / 2, xMidPoint + xSpan / 2])
-		.range([margin, parentWidth - margin]);
+		.domain(xDomain)
+		.range([parentWidth * margin, parentWidth * (1 - margin)]);
 	$: yScale = scaleLinear()
-		.domain([yMidPoint - (xSpan * aspect) / 2, yMidPoint + (xSpan * aspect) / 2])
-		.range([parentHeight - margin, margin]);
+		.domain(yDomain)
+		.range([parentHeight * (1 - margin), parentHeight * margin]);
 
 	interface Vec2 {
 		x: number;
@@ -110,17 +129,32 @@
 	<path d={pathLine([beam.start_node, beam.end_node])} stroke="black" stroke-width="10" />
 
 	<!-- Draw opplager -->
-	<BeamOpplager {xScale} {yScale} point={beam.start_node} {ang} slide={false} />
-	<BeamOpplager {xScale} {yScale} point={beam.end_node} ang={ang + Math.PI / 2} slide={true} />
+	<BeamOpplager {Zoom} {xScale} {yScale} point={beam.start_node} {ang} slide={false} />
+	<BeamOpplager
+		{Zoom}
+		{xScale}
+		{yScale}
+		point={beam.end_node}
+		ang={ang + Math.PI / 2}
+		slide={true}
+	/>
 
 	<!-- Draw loads -->
-	<BeamLoadCurve label={'q'} load={lineload} {xScale} {yScale} {beam} color={'pink'} />
-	<BeamLoadCurve label={'N'} load={axial} {xScale} {yScale} {beam} color={'red'} />
-	<BeamLoadCurve label={'M'} load={moment} {xScale} {yScale} {beam} color={'blue'} />
-	<BeamLoadCurve label={'S'} load={shear} {xScale} {yScale} {beam} color={'green'} />
+	<BeamLoadCurve {Zoom} label={'q'} load={lineload} {xScale} {yScale} {beam} color={'pink'} />
+	<BeamLoadCurve {Zoom} label={'N'} load={axial} {xScale} {yScale} {beam} color={'red'} />
+	<BeamLoadCurve {Zoom} label={'V'} load={shear} {xScale} {yScale} {beam} color={'green'} />
+	<BeamLoadCurve {Zoom} label={'M'} load={moment} {xScale} {yScale} {beam} color={'blue'} />
 
 	<!-- Draw force arrow -->
-	<BeamForceArrow {xScale} {yScale} point={beam.end_node} ang={ang - 2 * Math.PI} F={F0} />
+	<BeamForceArrow
+		{Zoom}
+		{xScale}
+		{yScale}
+		point={beam.end_node}
+		ang={ang - 2 * Math.PI}
+		bind:F={F0}
+	/>
+	<BeamMomentArrow {Zoom} {xScale} {yScale} point={beam.end_node} {ang} bind:M={M0} />
 </svg>
 
 <style>

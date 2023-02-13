@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Beam1D from '$lib/figures/Beam1D.svelte';
+	import Beam1D from '$lib/components/Beam1D.svelte';
 	let viewPortWidth, viewPortHeight;
 
 	let x1: number = 0,

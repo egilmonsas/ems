@@ -18,7 +18,11 @@
 		beta_kltb: number,
 		buckleCurveY: String,
 		buckleCurveZ: String,
-		ltbCurve: String
+		ltbCurve: String,
+		limitstate: String,
+		cMy: number,
+		cMz: number,
+		muCr: number
 	) {
 		let DcResponse: designCheckResponse = await invoke('perform_design_check', {
 			crstype: crsKind,
@@ -27,16 +31,17 @@
 			n: N_kN * 1000,
 			my: My_kNm * 1000000,
 			mz: Mz_kNm * 1000000,
-			cMy: 0.95,
-			cMz: 0.95,
-			muCr: 1.5,
+			cMy: cMy,
+			cMz: cMz,
+			muCr: muCr,
 			length: length * 1000,
 			betaKy: beta_ky,
 			betaKz: beta_kz,
 			betaKltb: beta_kltb,
 			buckleCurveY: buckleCurveY,
 			buckleCurveZ: buckleCurveZ,
-			ltbCurve: ltbCurve
+			ltbCurve: ltbCurve,
+			limitstate: limitstate
 		});
 		DCToShow = [
 			{

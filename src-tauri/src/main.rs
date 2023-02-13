@@ -11,9 +11,35 @@ use emsdesign::mmb::columnbeam::{ColumnBeam, DesignChecks};
 use emsdesign::{Axis, LimitStateType};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
+use std::sync::Mutex;
 
+pub struct InnerAppState {
+    pub count: usize,
+}
+impl InnerAppState {
+    pub fn increment(&mut self) {
+        self.count += 1;
+    }
+    pub fn get_count(&self) -> usize {
+        self.count
+    }
+}
+
+pub struct AppState(pub Mutex<InnerAppState>);
+
+#[tauri::command]
+fn increment_count(state: tauri::State<AppState>) {
+    let mut state_guard = state.0.lock().unwrap();
+    state_guard.increment();
+}
+#[tauri::command]
+fn get_count(state: tauri::State<AppState>) -> usize {
+    let mut state_guard = state.0.lock().unwrap();
+    state_guard.get_count()
+}
 fn main() {
     tauri::Builder::default()
+        .manage(AppState(Mutex::new(InnerAppState { count: 0 })))
         .invoke_handler(tauri::generate_handler![
             get_area,
             get_section_names,
@@ -21,7 +47,9 @@ fn main() {
             get_steel_variants,
             get_material_properties,
             get_buckle_curve,
-            perform_design_check
+            perform_design_check,
+            increment_count,
+            get_count
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -62,13 +90,15 @@ fn perform_design_check(
     buckle_curve_y: &str,
     buckle_curve_z: &str,
     ltb_curve: &str,
+    limitstate: &str,
 ) -> Result<DesignChecks, String> {
     let preset = Variant::get(crstype).ok_or_else(|| "Could not get preset".to_owned())?;
     let crs = CrossSectionLib::get(&preset, name);
     let matvariant = Class::get(material).ok_or_else(|| "Could not get material".to_owned())?;
     let mat = Steel::from(&matvariant);
     let cmb = ColumnBeam::new(crs, mat);
-
+    let limitstate =
+        LimitStateType::get(limitstate).ok_or_else(|| "Could not get limitstate".to_owned())?;
     let design_load = LoadCase {
         N: n,
         Mx: 0.0,
@@ -92,6 +122,7 @@ fn perform_design_check(
         &buckle_curve_y,
         &buckle_curve_z,
         &buckle_curve_ltb,
+        &limitstate,
     );
 
     Ok(design_checks)
