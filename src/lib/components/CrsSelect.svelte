@@ -87,6 +87,31 @@
 				id: 'A_{v,z}',
 				val: CrossSectionResponse.A_v_z ? CrossSectionResponse.A_v_z.toExponential(2) : 'NaN',
 				unit: 'mm^2'
+			},
+			{
+				id: 'I',
+				val: CrossSectionResponse.I ? CrossSectionResponse.I.toExponential(2) : 'NaN',
+				unit: 'mm^4'
+			},
+			{
+				id: 'I_{y}',
+				val: CrossSectionResponse.I_y ? CrossSectionResponse.I_y.toExponential(2) : 'NaN',
+				unit: 'mm^4'
+			},
+			{
+				id: 'I_{z}',
+				val: CrossSectionResponse.I_z ? CrossSectionResponse.I_z.toExponential(2) : 'NaN',
+				unit: 'mm^4'
+			},
+			{
+				id: 'I_{T}',
+				val: CrossSectionResponse.I_t ? CrossSectionResponse.I_t.toExponential(2) : 'NaN',
+				unit: 'mm^4'
+			},
+			{
+				id: 'I_{\\omega}',
+				val: CrossSectionResponse.I_w ? CrossSectionResponse.I_w.toExponential(2) : 'NaN',
+				unit: 'mm^6'
 			}
 		];
 	}

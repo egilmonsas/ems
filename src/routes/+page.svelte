@@ -17,6 +17,7 @@
 	import { BaseDirectory, createDir } from '@tauri-apps/api/fs';
 	import { invoke } from '@tauri-apps/api/tauri';
 	let M0 = 0;
+	let M1 = 0;
 	let F0 = 0;
 	let icludeSafetyFactor: boolean = true;
 	let material = 'S355';
@@ -65,7 +66,7 @@
 
 	let cMy: number = 0.95,
 		cMz: number = 0.95,
-		muCr: number = 1.13;
+		muCr: number = 1.145;
 	function handle() {
 		get_crs_data(crsKind, crsType);
 		perform_design_check(
@@ -199,8 +200,8 @@
 			<p>Geometri</p>
 			<div class="row">
 				<input type="number" on:change={handle} bind:value={x1} step="0.1" placeholder="x1" />
-				<input type="number" on:change={handle} bind:value={x2} step="0.1" placeholder="y1" />
-				<input type="number" on:change={handle} bind:value={y1} step="0.1" placeholder="x2" />
+				<input type="number" on:change={handle} bind:value={x2} step="0.1" placeholder="x2" />
+				<input type="number" on:change={handle} bind:value={y1} step="0.1" placeholder="y1	" />
 				<input type="number" on:change={handle} bind:value={y2} step="0.1" placeholder="y2" />
 				{length.toFixed(1)}
 			</div>
@@ -325,6 +326,7 @@
 					<Beam1D
 						{F0}
 						{M0}
+						{M1}
 						parentWidth={viewPortWidth}
 						parentHeight={viewPortHeight}
 						{beam}

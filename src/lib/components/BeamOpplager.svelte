@@ -40,5 +40,20 @@
 		stroke="black"
 		stroke-width="10"
 	/>
+{:else}
+	{#each [0, 0.25, 0.5, 0.75, 1.0] as x}
+		<path
+			d={pathLine([
+				step_along(step_along(point, side_length * 1, ang1), side_length * x, ang - Math.PI / 2),
+				step_along(
+					step_along(step_along(point, side_length * 1, ang1), side_length * x, ang - Math.PI / 2),
+					side_length * 0.25,
+					ang1 - Math.PI / 3
+				)
+			])}
+			stroke="black"
+			stroke-width="3"
+		/>
+	{/each}
 {/if}
 <circle r="10" stroke="black" fill="black" cx={xScale(point.x)} cy={yScale(point.y)} />

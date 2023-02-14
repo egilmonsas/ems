@@ -22,6 +22,7 @@
 	let self_weight = res.self_weight_kN_pr_meter ? res.self_weight_kN_pr_meter : 1;
 	export let F0;
 	export let M0;
+	export let M1;
 
 	// Opplager
 	$: ang = beam_ang(beam);
@@ -30,12 +31,12 @@
 	$: lineload = x_norms.map((d) => ({ x: d, y: self_weight, ang: (3 / 2) * Math.PI }));
 	$: moment = x_norms.map((d) => ({
 		x: d,
-		y: compute_moment_at_x(d, beam, self_weight, M0),
+		y: compute_moment_at_x(d, beam, self_weight, M0, M1),
 		ang: beam_ang(beam) + (1 / 2) * Math.PI
 	}));
 	$: shear = x_norms.map((d) => ({
 		x: d,
-		y: -compute_shear_at_x(d, beam, self_weight, M0),
+		y: -compute_shear_at_x(d, beam, self_weight, M0, M1),
 		ang: beam_ang(beam) + (1 / 2) * Math.PI
 	}));
 	$: axial = x_norms.map((d) => ({
@@ -44,21 +45,35 @@
 		ang: beam_ang(beam) - (1 / 2) * Math.PI
 	}));
 
-	function compute_moment_at_x(x_norm: number, beam: Arrow, self_weight: number, M0: number) {
+	function compute_moment_at_x(
+		x_norm: number,
+		beam: Arrow,
+		self_weight: number,
+		M0: number,
+		M1: number
+	) {
 		return -(
 			0.5 *
 				x_norm *
 				Math.pow(beam_len(beam), 2) *
 				self_weight *
 				(1 - x_norm) *
-				Math.cos(beam_ang(beam)) -
-			M0 * x_norm
+				Math.cos(beam_ang(beam)) +
+			M0 * (1 - x_norm) -
+			M1 * x_norm
 		);
 	}
 
-	function compute_shear_at_x(x_norm: number, beam: Arrow, self_weight: number, M0: number) {
+	function compute_shear_at_x(
+		x_norm: number,
+		beam: Arrow,
+		self_weight: number,
+		M0: number,
+		M1: number
+	) {
 		return (
-			beam_len(beam) * self_weight * (0.5 - x_norm) * Math.cos(beam_ang(beam)) - M0 / beam_len(beam)
+			beam_len(beam) * self_weight * (0.5 - x_norm) * Math.cos(beam_ang(beam)) -
+			(M1 + M0) / beam_len(beam)
 		);
 	}
 	function compute_self_weight_axial_at_x(x_norm: number, beam: Arrow, self_weight: number) {
@@ -165,7 +180,8 @@
 		ang={ang - 2 * Math.PI}
 		bind:F={F0}
 	/>
-	<BeamMomentArrow {Zoom} {xScale} {yScale} point={beam.end_node} {ang} bind:M={M0} />
+	<BeamMomentArrow {Zoom} {xScale} {yScale} point={beam.start_node} {ang} bind:M={M0} />
+	<BeamMomentArrow {Zoom} {xScale} {yScale} point={beam.end_node} {ang} bind:M={M1} />
 </svg>
 
 <style>

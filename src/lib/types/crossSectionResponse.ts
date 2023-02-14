@@ -13,6 +13,8 @@ export interface CrossSectionResponse {
 	I: number;
 	I_y: number;
 	I_z: number;
+	I_t: number;
+	I_w: number;
 	w_el: number;
 	w_pl: number;
 	w_el_y: number;
