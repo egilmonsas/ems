@@ -176,189 +176,196 @@
 	createDataFolder();
 </script>
 
-<main>
-	<sidebar>
-		<sidebarContent>
-			<p>Dim. Last</p>
-			<div class="row">
-				<input type="number" on:change={handle} bind:value={N_kN} step="1" placeholder="N,ed" />
-				<input
-					type="number"
-					on:change={handle}
-					bind:value={My_kNm}
-					step="0.1"
-					placeholder="My,ed"
-				/>
-				<input
-					type="number"
-					on:change={handle}
-					bind:value={Mz_kNm}
-					step="0.1"
-					placeholder="Mz,ed"
-				/>
-			</div>
-			<p>Geometri</p>
-			<div class="row">
-				<input type="number" on:change={handle} bind:value={x1} step="0.1" placeholder="x1" />
-				<input type="number" on:change={handle} bind:value={x2} step="0.1" placeholder="x2" />
-				<input type="number" on:change={handle} bind:value={y1} step="0.1" placeholder="y1	" />
-				<input type="number" on:change={handle} bind:value={y2} step="0.1" placeholder="y2" />
-				{length.toFixed(1)}
-			</div>
-			<p>Div.</p>
-			<div class="row">
-				<input
-					type="number"
-					on:change={handle}
-					bind:value={cMy}
-					step="0.01"
-					placeholder="cMy"
-					on:mouseenter={() => {
-						consideringCm = true;
-					}}
-					on:mouseleave={() => {
-						consideringCm = false;
-					}}
-				/>
-				<input
-					type="number"
-					on:change={handle}
-					bind:value={cMz}
-					step="0.01"
-					placeholder="cMz"
-					on:mouseenter={() => {
-						consideringCm = true;
-					}}
-					on:mouseleave={() => {
-						consideringCm = false;
-					}}
-				/>
-				<input type="number" on:change={handle} bind:value={muCr} step="0.01" placeholder="muCr" />
-			</div>
-			<p>Material</p>
-			<div class="row">
-				<Selector
-					label={'Klasse: '}
-					bind:selected={material}
-					options={names.MAT}
-					onChange={handle}
-				/>
-				<Switch label={'Faktor? '} bind:active={icludeSafetyFactor} onChange={handle} />
-			</div>
-			<p>Tverrsnitt</p>
-			<div class="row">
-				<Selector label={'Type'} bind:selected={crsKind} options={crsKinds} onChange={handle} />
-				<Selector
-					label={'Variant '}
-					bind:selected={crsType}
-					options={crsOptions}
-					onChange={handle}
-				/>
-			</div>
-			<p>Knekkurve</p>
-			<div class="row">
-				<Selector
-					label={'Y-akse'}
-					bind:selected={curveY}
-					options={buckleCurveKinds}
-					onChange={handle}
-					bind:hover={consideringBuckleCurve}
-				/>
-				<Selector
-					label={'Z-akse'}
-					bind:selected={curveZ}
-					options={buckleCurveKinds}
-					onChange={handle}
-					bind:hover={consideringBuckleCurve}
-				/>
-				<Selector
-					label={'LTB'}
-					bind:selected={curveLTB}
-					options={LTBCurveKinds}
-					onChange={handle}
-					bind:hover={consideringLTBCurve}
-				/>
-			</div>
-			<div class="row">
-				<input
-					type="number"
-					on:change={handle}
-					bind:value={beta_ky}
-					step="0.1"
-					max="2"
-					min="0"
-					placeholder="beta,y"
-				/>
-				<input
-					type="number"
-					on:change={handle}
-					bind:value={beta_kz}
-					step="0.1"
-					max="2"
-					min="0"
-					placeholder="beta,z"
-				/>
-				<input
-					type="number"
-					on:change={handle}
-					bind:value={beta_kltb}
-					step="0.1"
-					max="2"
-					min="0"
-					placeholder="beta,ltb"
-				/>
-			</div>
-			<CrsSelect bind:execute={get_crs_data} {crsKind} />
-			<CapacitySelect bind:execute={get_cmb_capacity} {icludeSafetyFactor} />
-			<DesignCheckTable bind:execute={perform_design_check} />
-		</sidebarContent>
-	</sidebar>
-
-	<div class="container" bind:clientWidth={viewPortWidth} bind:clientHeight={viewPortHeight}>
-		<Header items={tabItems} bind:activeTabValue={currentTab} />
-		<img src={table6_2} alt="Eurokode 3-1, tabell 6.3" hidden={!consideringBuckleCurve} />
-		<img src={table6_4} alt="Eurokode 3-1, tabell 6.4" hidden={!consideringLTBCurve} />
-		<img src={tableB_3} alt="Eurokode 3-1, tabell B.3" hidden={!consideringCm} />
-
-		{#await data then data}
-			{#await res then res}
-				{#if 1 === currentTab}
-					<Beam1D
-						{F0}
-						{M0}
-						{M1}
-						parentWidth={viewPortWidth}
-						parentHeight={viewPortHeight}
-						{beam}
-						{res}
+<div class="wrapper">
+	<main>
+		<sidebar>
+			<sidebarContent>
+				<p>Dim. Last</p>
+				<div class="row">
+					<input type="number" on:change={handle} bind:value={N_kN} step="1" placeholder="N,ed" />
+					<input
+						type="number"
+						on:change={handle}
+						bind:value={My_kNm}
+						step="0.1"
+						placeholder="My,ed"
 					/>
+					<input
+						type="number"
+						on:change={handle}
+						bind:value={Mz_kNm}
+						step="0.1"
+						placeholder="Mz,ed"
+					/>
+				</div>
+				<p>Geometri</p>
+				<div class="row">
+					<input type="number" on:change={handle} bind:value={x1} step="0.1" placeholder="x1" />
+					<input type="number" on:change={handle} bind:value={x2} step="0.1" placeholder="x2" />
+					<input type="number" on:change={handle} bind:value={y1} step="0.1" placeholder="y1	" />
+					<input type="number" on:change={handle} bind:value={y2} step="0.1" placeholder="y2" />
+					{length.toFixed(1)}
+				</div>
+				<p>Div.</p>
+				<div class="row">
+					<input
+						type="number"
+						on:change={handle}
+						bind:value={cMy}
+						step="0.01"
+						placeholder="cMy"
+						on:mouseenter={() => {
+							consideringCm = true;
+						}}
+						on:mouseleave={() => {
+							consideringCm = false;
+						}}
+					/>
+					<input
+						type="number"
+						on:change={handle}
+						bind:value={cMz}
+						step="0.01"
+						placeholder="cMz"
+						on:mouseenter={() => {
+							consideringCm = true;
+						}}
+						on:mouseleave={() => {
+							consideringCm = false;
+						}}
+					/>
+					<input
+						type="number"
+						on:change={handle}
+						bind:value={muCr}
+						step="0.01"
+						placeholder="muCr"
+					/>
+				</div>
+				<p>Material</p>
+				<div class="row">
+					<Selector
+						label={'Klasse: '}
+						bind:selected={material}
+						options={names.MAT}
+						onChange={handle}
+					/>
+					<Switch label={'Faktor? '} bind:active={icludeSafetyFactor} onChange={handle} />
+				</div>
+				<p>Tverrsnitt</p>
+				<div class="row">
+					<Selector label={'Type'} bind:selected={crsKind} options={crsKinds} onChange={handle} />
+					<Selector
+						label={'Variant '}
+						bind:selected={crsType}
+						options={crsOptions}
+						onChange={handle}
+					/>
+				</div>
+				<p>Knekkurve</p>
+				<div class="row">
+					<Selector
+						label={'Y-akse'}
+						bind:selected={curveY}
+						options={buckleCurveKinds}
+						onChange={handle}
+						bind:hover={consideringBuckleCurve}
+					/>
+					<Selector
+						label={'Z-akse'}
+						bind:selected={curveZ}
+						options={buckleCurveKinds}
+						onChange={handle}
+						bind:hover={consideringBuckleCurve}
+					/>
+					<Selector
+						label={'LTB'}
+						bind:selected={curveLTB}
+						options={LTBCurveKinds}
+						onChange={handle}
+						bind:hover={consideringLTBCurve}
+					/>
+				</div>
+				<div class="row">
+					<input
+						type="number"
+						on:change={handle}
+						bind:value={beta_ky}
+						step="0.1"
+						max="2"
+						min="0"
+						placeholder="beta,y"
+					/>
+					<input
+						type="number"
+						on:change={handle}
+						bind:value={beta_kz}
+						step="0.1"
+						max="2"
+						min="0"
+						placeholder="beta,z"
+					/>
+					<input
+						type="number"
+						on:change={handle}
+						bind:value={beta_kltb}
+						step="0.1"
+						max="2"
+						min="0"
+						placeholder="beta,ltb"
+					/>
+				</div>
+				<CrsSelect bind:execute={get_crs_data} {crsKind} />
+				<CapacitySelect bind:execute={get_cmb_capacity} {icludeSafetyFactor} />
+				<DesignCheckTable bind:execute={perform_design_check} />
+			</sidebarContent>
+		</sidebar>
+
+		<div class="container" bind:clientWidth={viewPortWidth} bind:clientHeight={viewPortHeight}>
+			<Header items={tabItems} bind:activeTabValue={currentTab} />
+			<img src={table6_2} alt="Eurokode 3-1, tabell 6.3" hidden={!consideringBuckleCurve} />
+			<img src={table6_4} alt="Eurokode 3-1, tabell 6.4" hidden={!consideringLTBCurve} />
+			<img src={tableB_3} alt="Eurokode 3-1, tabell B.3" hidden={!consideringCm} />
+
+			{#await data then data}
+				{#await res then res}
+					{#if 1 === currentTab}
+						<Beam1D
+							{F0}
+							{M0}
+							{M1}
+							parentWidth={viewPortWidth}
+							parentHeight={viewPortHeight}
+							{beam}
+							{res}
+						/>
+					{/if}
+				{/await}
+				{#if 2 === currentTab}
+					<BuckleCurve {data} {crsType} parentWidth={viewPortWidth} parentHeight={viewPortHeight} />
+				{/if}
+				{#if 3 === currentTab}
+					<button type="button" on:click={increment}>Click Me!</button>
+					{#await count then count}
+						{count}
+					{/await}
 				{/if}
 			{/await}
-			{#if 2 === currentTab}
-				<BuckleCurve {data} {crsType} parentWidth={viewPortWidth} parentHeight={viewPortHeight} />
-			{/if}
-			{#if 3 === currentTab}
-				<button type="button" on:click={increment}>Click Me!</button>
-				{#await count then count}
-					{count}
-				{/await}
-			{/if}
-		{/await}
-	</div>
-</main>
-<Footer />
+		</div>
+	</main>
+	<Footer />
+</div>
 
 <style>
 	.container {
 		margin: 0;
-		padding: 0;
-		width: 100%;
-		flex-grow: 1;
+		flex: 1;
+	}
+	.wrapper {
+		min-height: 100%;
 		display: flex;
 		flex-direction: column;
-		background: rgba(255, 255, 255, 0);
 	}
-
 	img {
 		position: absolute;
 		width: 800px;

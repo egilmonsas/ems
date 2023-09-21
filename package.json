@@ -37,7 +37,7 @@
 		"mathjax": "^3.2.2",
 		"mathjax-svelte": "^0.0.2",
 		"p-limit": "^4.0.0",
-		"plotly.js-dist": "^2.18.0",
+		"plotly.js-dist": "^2.24.3",
 		"svelte-katex": "^0.1.2"
 	}
 }

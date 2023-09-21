@@ -8,20 +8,23 @@
 	export let parentWidth, parentHeight;
 	export let crsType = '';
 
-	const fig_color = 'rgba(255,255,255,0)';
+	const fig_color = 'rgba(255,255,255,1)';
 	const axis_y_color = '#a0cbe8';
 	const axis_z_color = '#4e79a7';
 	const section_cap_color = '#f28e2b';
-	const grid_color = 'rgb(50,50,50)';
-	const tickwidth = 2;
+	const grid_color = 'rgba(50,50,50,0.5)';
+	const tickwidth = 1;
+	const line_thickness = 2;
 	const ticklen = 10;
+	const fig_margin = 25;
+
 	let diagonal = Math.pow(Math.pow(parentWidth, 2) + Math.pow(parentHeight, 2), 0.5);
 	onMount(() => {
 		var N_pl = {
 			x: data.map((d) => d['L_k'] / 1000),
 			y: data.map((d) => d['N_pl'] / 1000),
 			mode: 'lines',
-			name: 'N_pl',
+			name: '$N_{pl}$',
 			line: {
 				color: section_cap_color
 			}
@@ -33,9 +36,10 @@
 			mode: 'lines',
 			line: {
 				shape: 'spline',
-				color: axis_y_color
+				color: axis_y_color,
+				width: line_thickness
 			},
-			name: 'N_b_rd_y'
+			name: '$N_{b,rd,y}$'
 		};
 		var N_rd_z = {
 			x: data.map((d) => d['L_k'] / 1000),
@@ -43,9 +47,10 @@
 			mode: 'lines',
 			line: {
 				shape: 'spline',
-				color: axis_z_color
+				color: axis_z_color,
+				width: line_thickness
 			},
-			name: 'N_b_rd_z'
+			name: '$N_{b,rd,z}$'
 		};
 		var N_eu_y = {
 			x: data.map((d) => d['L_k'] / 1000),
@@ -54,9 +59,10 @@
 			line: {
 				dash: 'dash',
 				shape: 'spline',
-				color: axis_y_color
+				color: axis_y_color,
+				width: line_thickness
 			},
-			name: 'N_eu_y'
+			name: '$N_{euler,y}$'
 		};
 		var N_eu_z = {
 			x: data.map((d) => d['L_k'] / 1000),
@@ -65,9 +71,10 @@
 			line: {
 				dash: 'dash',
 				shape: 'spline',
-				color: axis_z_color
+				color: axis_z_color,
+				width: line_thickness
 			},
-			name: 'N_eu_z'
+			name: '$N_{euler,z}$'
 		};
 		var dataToPlot = [N_pl, N_rd_y, N_rd_z, N_eu_y, N_eu_z];
 
@@ -116,13 +123,32 @@
 			paper_bgcolor: fig_color,
 			plot_bgcolor: fig_color,
 			font: {
-				size: diagonal / 125
+				size: diagonal / 100
 			},
 			modebar: {
 				orientation: 'v',
 				bgcolor: 'rgba(100,100,100,0.0)',
 				color: 'rgb(0, 122, 204)',
 				remove: ['editInChartStudio', 'editinchartstudio', 'autoscale']
+			},
+			showlegend: true,
+			legend: {
+				xanchor: 'right',
+				x: 0.99,
+				y: 0.99,
+				font: {
+					family: 'sans-serif',
+					size: diagonal / 100
+				},
+				borderwidth: 1,
+				bordercolor: grid_color,
+				bgcolor: fig_color
+			},
+			margin: {
+				t: fig_margin * 2,
+				b: fig_margin,
+				l: fig_margin,
+				r: fig_margin
 			}
 		};
 		let plotDiv = document.getElementById('plotDiv');

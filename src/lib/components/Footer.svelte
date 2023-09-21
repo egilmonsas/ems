@@ -15,7 +15,7 @@
 	footer {
 		bottom: 0;
 		left: 0;
-		position: absolute;
+		margin-top: auto;
 		width: 100%;
 		padding-top: 0.15em;
 		padding-bottom: 0.15em;
